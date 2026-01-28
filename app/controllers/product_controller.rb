@@ -1,4 +1,5 @@
 class ProductController < ApplicationController
+  skip_before_action :authenticate_request!, only: [:index, :show]
 
   def index
     products = Product.all
