@@ -28,4 +28,6 @@ class Product < ApplicationRecord
 			save!
 		end
 	end
+  
+	has_many :carts, dependent: :destroy
 end
