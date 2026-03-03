@@ -1,12 +1,10 @@
 class Cart < ApplicationRecord
   belongs_to :user
-  belongs_to :product
 
-  validates :quantity, presence: true,
-                       numericality: { only_integer: true, greater_than: 0 }
+  has_many :cart_items, dependent: :destroy
 
-  # Returns subtotal price for this cart line
-  def subtotal
-    (product.price.to_f * quantity).round(2)
+  # Returns total price for the whole cart
+  def total
+    cart_items.includes(:product).sum { |ci| ci.subtotal }
   end
 end
