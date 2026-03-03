@@ -23,5 +23,7 @@ module ShopBackend
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    # Run as API only (no views, assets); suitable for SPA backends.
+    config.api_only = true
   end
 end

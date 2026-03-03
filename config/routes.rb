@@ -9,10 +9,10 @@ Rails.application.routes.draw do
   get "users" => "user#index"
   get "users/:id" => "user#show"
   
-  # Cart endpoints: manage user's cart items
-  resources :carts, only: [:index, :create, :update, :destroy] do
-    collection do
-      delete :clear
-    end
-  end
+  get "cart" => "cart#show"
+  post "cart" => "cart#create"
+  post "cart/new" => "cart#add_item"
+  patch "cart/item" => "cart#update_item"
+  delete "cart/item" => "cart#remove_item"
+  delete "cart" => "cart#destroy"
 end

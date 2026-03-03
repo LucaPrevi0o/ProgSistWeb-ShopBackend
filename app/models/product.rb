@@ -29,5 +29,5 @@ class Product < ApplicationRecord
 		end
 	end
   
-	has_many :carts, dependent: :destroy
+	has_many :cart_items, dependent: :destroy
 end
