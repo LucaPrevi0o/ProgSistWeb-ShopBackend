@@ -1,7 +1,11 @@
 class Product < ApplicationRecord
+	# Allowed categories
+	CATEGORIES = %w[ELECTRONICS ACCESSORIES CLOTHES BOOKS TOYS HOME BEAUTY UNCATEGORIZED]
+
 	# Validations
+	validates :category, presence: true, inclusion: { in: CATEGORIES }
 	validates :stock, presence: true,
-										numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+						numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
 	# Scopes
 	scope :in_stock, -> { where('stock > 0') }

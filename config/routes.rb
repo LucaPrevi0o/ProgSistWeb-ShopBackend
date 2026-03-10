@@ -4,6 +4,7 @@ Rails.application.routes.draw do
 
   get "products" => "product#index"
   get "products/:id" => "product#show"
+  
   post "login" => "auth#login"
   
   get "users" => "user#index"
