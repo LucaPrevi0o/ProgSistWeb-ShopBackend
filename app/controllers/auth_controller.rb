@@ -12,7 +12,7 @@ class AuthController < ApplicationController
         payload = { user_id: user.id, exp: 24.hours.from_now.to_i, jti: SecureRandom.uuid }
         secret = Rails.application.credentials.secret_key_base || Rails.application.secret_key_base
         token = JWT.encode(payload, secret, 'HS256')
-        render json: { token: token }
+        render json: { token: token, id: user.id }
       else
         render json: { error: 'Invalid credentials' }, status: :unauthorized
       end
