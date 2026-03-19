@@ -6,7 +6,12 @@ class ProductController < ApplicationController
     page = params[:page].to_i
     page = 1 if page < 1
     per_page = 8
-    products = Product.limit(per_page).offset((page - 1) * per_page)
+
+    # Build filtered relation and then paginate so filtering applies to full dataset
+    filtered = Product.apply_filters(params)
+
+    products = filtered.limit(per_page).offset((page - 1) * per_page)
+
     render json: products
   end
 

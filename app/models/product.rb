@@ -10,6 +10,34 @@ class Product < ApplicationRecord
 	# Scopes
 	scope :in_stock, -> { where('stock > 0') }
 
+	# filter by category (exact match)
+	scope :by_category, ->(category) { where(category: category) if category.present? }
+
+	# filter by name (case-insensitive partial match)
+	scope :name_like, ->(name) { where('LOWER(name) LIKE ?', "%#{name.to_s.downcase}%") if name.present? }
+
+	# filter by price range (expects numeric values or parsable strings)
+	scope :price_between, ->(min_price, max_price) {
+		min = min_price.to_f if min_price.present?
+		max = max_price.to_f if max_price.present?
+		if min_price.present? && max_price.present?
+			where('price >= ? AND price <= ?', min, max)
+		elsif min_price.present?
+			where('price >= ?', min)
+		elsif max_price.present?
+			where('price <= ?', max)
+		end
+	}
+
+	# Compose filters from a params-like hash
+	def self.apply_filters(params)
+		rel = all
+		rel = rel.by_category(params[:category]) if params[:category].present?
+		rel = rel.name_like(params[:name]) if params[:name].present?
+		rel = rel.price_between(params[:min_price], params[:max_price]) if params[:min_price].present? || params[:max_price].present?
+		rel
+	end
+
 	# Returns true if at least one item is available
 	def in_stock?
 		stock.to_i > 0
