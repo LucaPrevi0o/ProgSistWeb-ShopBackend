@@ -4,6 +4,7 @@ Rails.application.routes.draw do
 
   get "products" => "product#index"
   get "products/:id" => "product#show"
+  get "categories" => "product#categories"
   
   post "login" => "auth#login"
   
@@ -16,4 +17,5 @@ Rails.application.routes.draw do
   patch "cart/item" => "cart#update_item"
   delete "cart/item" => "cart#remove_item"
   delete "cart" => "cart#destroy"
+  post "checkout" => "order#create"
 end
