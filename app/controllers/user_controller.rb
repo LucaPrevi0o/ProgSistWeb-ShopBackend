@@ -1,6 +1,6 @@
 class UserController < ApplicationController
   def index
-    users = User.includes(:user_info).all
+    users = User.includes(user_info: :user_address).all
     payload = users.map do |u|
       build_user_payload(u)
     end
@@ -8,7 +8,7 @@ class UserController < ApplicationController
   end
 
   def show
-    user = User.includes(:user_info).find_by(id: params[:id])
+    user = User.includes(user_info: :user_address).find_by(id: params[:id])
     if user
       render json: build_user_payload(user)
     else
@@ -26,11 +26,19 @@ class UserController < ApplicationController
     end
 
     attrs = extract_info_attributes
-    info = @current_user.build_user_info(attrs)
-    if info.save
+    address_attrs = extract_address_attributes
+
+    begin
+      ActiveRecord::Base.transaction do
+        info = @current_user.build_user_info(attrs)
+        info.save!
+        if address_attrs.present?
+          info.create_user_address!(address_attrs)
+        end
+      end
       render json: build_user_payload(@current_user)
-    else
-      render json: { error: 'Validation failed', details: info.errors.full_messages }, status: :unprocessable_entity
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { error: 'Validation failed', details: e.record.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -45,10 +53,22 @@ class UserController < ApplicationController
     end
 
     attrs = extract_info_attributes
-    if info.update(attrs)
+    address_attrs = extract_address_attributes
+
+    begin
+      ActiveRecord::Base.transaction do
+        info.update!(attrs)
+        if address_attrs.present?
+          if info.user_address
+            info.user_address.update!(address_attrs)
+          else
+            info.create_user_address!(address_attrs)
+          end
+        end
+      end
       render json: build_user_payload(@current_user)
-    else
-      render json: { error: 'Validation failed', details: info.errors.full_messages }, status: :unprocessable_entity
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { error: 'Validation failed', details: e.record.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -56,6 +76,22 @@ class UserController < ApplicationController
 
   def user_info_params
     params.permit(:first_name, :last_name, :phone)
+  end
+
+  def extract_address_attributes
+    # Accept nested `info.address` with camelCase or snake_case, or top-level fields
+    if params[:info].present? && params[:info][:address].present?
+      a = params[:info][:address]
+      return {
+        street: a[:street] || a['street'],
+        city: a[:city] || a['city'],
+        postal_code: a[:postalCode] || a[:postal_code] || a['postalCode'] || a['postal_code'],
+        country: a[:country] || a['country']
+      }.compact
+    end
+
+    # fallback to top-level permitted params
+    params.permit(:street, :city, :postal_code, :country).to_h.symbolize_keys
   end
 
   def extract_info_attributes
@@ -74,11 +110,24 @@ class UserController < ApplicationController
   end
 
   def build_user_payload(user)
-    info = user.user_info ? {
-      firstName: user.user_info.first_name,
-      lastName: user.user_info.last_name,
-      phone: user.user_info.phone
-    } : nil
+    info = nil
+    if user.user_info
+      info = {
+        firstName: user.user_info.first_name,
+        lastName: user.user_info.last_name,
+        phone: user.user_info.phone
+      }
+
+      if user.user_info.user_address
+        a = user.user_info.user_address
+        info[:address] = {
+          street: a.street,
+          city: a.city,
+          postalCode: a.postal_code,
+          country: a.country
+        }
+      end
+    end
 
     {
       id: user.id,
