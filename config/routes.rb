@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   
   get "users" => "user#index"
   get "users/:id" => "user#show"
+  post "users/:id/info" => "user#create_info"
+  patch "users/:id/info" => "user#update_info"
   
   get "cart" => "cart#show"
   post "cart" => "cart#create"
