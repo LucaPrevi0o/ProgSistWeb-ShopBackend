@@ -1,4 +1,34 @@
 class UserController < ApplicationController
+  skip_before_action :authenticate_request!, only: [:create]
+
+  # Public endpoint to register a new user. Returns JWT token on success.
+  def create
+    begin
+      email = params[:email].to_s
+      password = params[:password].to_s
+
+      if email.blank? || password.blank?
+        render json: { error: 'Missing email or password' }, status: :unprocessable_entity and return
+      end
+
+      if User.exists?(email: email)
+        render json: { error: 'Email already taken' }, status: :conflict and return
+      end
+
+      user = User.create!(email: email, password: password)
+
+      payload = { user_id: user.id, exp: 24.hours.from_now.to_i, jti: SecureRandom.uuid }
+      secret = Rails.application.credentials.secret_key_base || Rails.application.secret_key_base
+      token = JWT.encode(payload, secret, 'HS256')
+
+      render json: { token: token, id: user.id }, status: :created
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { error: 'Validation failed', details: e.record.errors.full_messages }, status: :unprocessable_entity
+    rescue => e
+      Rails.logger.error("UserController#create error: #{e.class} - #{e.message}\n#{e.backtrace.first(10).join("\n")}")
+      render json: { error: 'Internal server error' }, status: :internal_server_error
+    end
+  end
   def index
     users = User.includes(user_info: :user_address).all
     payload = users.map do |u|

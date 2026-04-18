@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   get "categories" => "product#categories"
   
   post "login" => "auth#login"
+  post "users" => "user#create"
   
   get "users" => "user#index"
   get "users/:id" => "user#show"
