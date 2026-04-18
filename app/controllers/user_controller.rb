@@ -75,19 +75,19 @@ class UserController < ApplicationController
   # Update existing user info
   def update_info
     return render json: { error: 'Accesso non autorizzato' }, status: :unauthorized unless @current_user && @current_user.id == params[:id].to_i
-
-    info = @current_user.user_info
-    unless info
-      render json: { error: 'User info not found' }, status: :not_found
-      return
-    end
-
     attrs = extract_info_attributes
     address_attrs = extract_address_attributes
 
     begin
       ActiveRecord::Base.transaction do
-        info.update!(attrs)
+        info = @current_user.user_info
+
+        if info
+          info.update!(attrs)
+        else
+          info = @current_user.create_user_info!(attrs)
+        end
+
         if address_attrs.present?
           if info.user_address
             info.user_address.update!(address_attrs)
@@ -96,6 +96,7 @@ class UserController < ApplicationController
           end
         end
       end
+
       render json: build_user_payload(@current_user)
     rescue ActiveRecord::RecordInvalid => e
       render json: { error: 'Validation failed', details: e.record.errors.full_messages }, status: :unprocessable_entity
