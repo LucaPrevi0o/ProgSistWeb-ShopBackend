@@ -56,6 +56,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_190000) do
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
+  create_table "payment_methods", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.json "details", default: {}
+    t.string "type", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_info_id", null: false
+    t.index ["user_info_id"], name: "index_payment_methods_on_user_info_id"
+  end
+
   create_table "products", force: :cascade do |t|
     t.string "category", default: "UNCATEGORIZED", null: false
     t.datetime "created_at", null: false
@@ -98,6 +107,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_190000) do
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "users"
+  add_foreign_key "payment_methods", "user_infos"
   add_foreign_key "user_addresses", "user_infos"
   add_foreign_key "user_infos", "users"
 end

@@ -30,7 +30,7 @@ class UserController < ApplicationController
     end
   end
   def index
-    users = User.includes(user_info: :user_address).all
+    users = User.includes(user_info: [:user_address, :payment_methods]).all
     payload = users.map do |u|
       build_user_payload(u)
     end
@@ -38,7 +38,7 @@ class UserController < ApplicationController
   end
 
   def show
-    user = User.includes(user_info: :user_address).find_by(id: params[:id])
+    user = User.includes(user_info: [:user_address, :payment_methods]).find_by(id: params[:id])
     if user
       render json: build_user_payload(user)
     else
@@ -157,6 +157,15 @@ class UserController < ApplicationController
           postalCode: a.postal_code,
           country: a.country
         }
+      end
+
+      if user.user_info.payment_methods.present?
+        info[:paymentMethods] = user.user_info.payment_methods.map do |pm|
+          {
+            id: pm.id,
+            details: pm.details
+          }
+        end
       end
     end
 
