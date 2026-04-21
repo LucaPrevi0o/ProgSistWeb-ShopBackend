@@ -30,15 +30,13 @@ class UserController < ApplicationController
     end
   end
   def index
-    users = User.includes(user_info: [:user_address, :payment_methods]).all
-    payload = users.map do |u|
-      build_user_payload(u)
-    end
+    users = User.includes(user_info: [:payment_methods]).all
+    payload = users.map { |u| build_user_payload(u) }
     render json: payload
   end
 
   def show
-    user = User.includes(user_info: [:user_address, :payment_methods]).find_by(id: params[:id])
+    user = User.includes(user_info: [:payment_methods]).find_by(id: params[:id])
     if user
       render json: build_user_payload(user)
     else
@@ -55,16 +53,14 @@ class UserController < ApplicationController
       return
     end
 
-    attrs = extract_info_attributes
+    data_attrs = extract_info_data
     address_attrs = extract_address_attributes
 
     begin
       ActiveRecord::Base.transaction do
-        info = @current_user.build_user_info(attrs)
+        data_attrs = data_attrs.merge('address' => address_attrs) if address_attrs.present?
+        info = @current_user.build_user_info(data: data_attrs)
         info.save!
-        if address_attrs.present?
-          info.create_user_address!(address_attrs)
-        end
       end
       render json: build_user_payload(@current_user)
     rescue ActiveRecord::RecordInvalid => e
@@ -75,25 +71,19 @@ class UserController < ApplicationController
   # Update existing user info
   def update_info
     return render json: { error: 'Accesso non autorizzato' }, status: :unauthorized unless @current_user && @current_user.id == params[:id].to_i
-    attrs = extract_info_attributes
+    data_attrs = extract_info_data
     address_attrs = extract_address_attributes
 
     begin
       ActiveRecord::Base.transaction do
         info = @current_user.user_info
-
         if info
-          info.update!(attrs)
+          new_data = (info.data || {}).merge(data_attrs)
+          new_data = new_data.merge('address' => address_attrs) if address_attrs.present?
+          info.update!(data: new_data)
         else
-          info = @current_user.create_user_info!(attrs)
-        end
-
-        if address_attrs.present?
-          if info.user_address
-            info.user_address.update!(address_attrs)
-          else
-            info.create_user_address!(address_attrs)
-          end
+          data_attrs = data_attrs.merge('address' => address_attrs) if address_attrs.present?
+          info = @current_user.create_user_info!(data: data_attrs)
         end
       end
 
@@ -110,52 +100,62 @@ class UserController < ApplicationController
   end
 
   def extract_address_attributes
-    # Accept nested `info.address` with camelCase or snake_case, or top-level fields
-    if params[:info].present? && params[:info][:address].present?
-      a = params[:info][:address]
-      return {
-        street: a[:street] || a['street'],
-        city: a[:city] || a['city'],
-        postal_code: a[:postalCode] || a[:postal_code] || a['postalCode'] || a['postal_code'],
-        country: a[:country] || a['country']
-      }.compact
+    # Accept nested `info.data.address` (camelCase or snake_case), or `info.address`, or top-level fields
+    if params[:info].present?
+      info = params[:info]
+      data = info[:data] || info
+      if data[:address].present?
+        a = data[:address]
+        return {
+          'street' => a[:street] || a['street'],
+          'city' => a[:city] || a['city'],
+          'postal_code' => a[:postalCode] || a[:postal_code] || a['postalCode'] || a['postal_code'],
+          'country' => a[:country] || a['country']
+        }.compact
+      end
     end
 
     # fallback to top-level permitted params
     params.permit(:street, :city, :postal_code, :country).to_h.symbolize_keys
   end
 
-  def extract_info_attributes
-    # Support either nested `info` with camelCase or snake_case, or top-level snake_case fields
+  def extract_info_data
+    # Return a hash suitable to store in `user_info.data` using snake_case keys.
     if params[:info].present?
       i = params[:info]
+      data = i[:data] || i
       return {
-        first_name: i[:firstName] || i[:first_name],
-        last_name: i[:lastName] || i[:last_name],
-        phone: i[:phone]
-      }
+        'first_name' => data[:firstName] || data[:first_name],
+        'last_name' => data[:lastName] || data[:last_name],
+        'phone' => data[:phone]
+      }.compact
     end
 
     # fallback to top-level permitted params
-    user_info_params.to_h.symbolize_keys
+    p = user_info_params.to_h.symbolize_keys
+    {
+      'first_name' => p[:first_name],
+      'last_name' => p[:last_name],
+      'phone' => p[:phone]
+    }.compact
   end
 
   def build_user_payload(user)
     info = nil
     if user.user_info
-      info = {
-        firstName: user.user_info.first_name,
-        lastName: user.user_info.last_name,
-        phone: user.user_info.phone
-      }
+      d = (user.user_info.data || {}).with_indifferent_access
+      info = { data: {} }
+      info[:data][:firstName] = d['first_name'] || d['firstName']
+      info[:data][:lastName] = d['last_name'] || d['lastName']
+      info[:data][:phone] = d['phone']
 
-      if user.user_info.user_address
-        a = user.user_info.user_address
-        info[:address] = {
-          street: a.street,
-          city: a.city,
-          postalCode: a.postal_code,
-          country: a.country
+      addr = d['address'] || {}
+      if addr.present?
+        info[:data][:address] = {
+          street: addr['street'],
+          city: addr['city'],
+          postalCode: addr['postal_code'] || addr['postalCode'],
+          country: addr['country']
         }
       end
 
