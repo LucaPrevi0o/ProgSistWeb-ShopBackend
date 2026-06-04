@@ -1,6 +1,6 @@
 class ProductController < ApplicationController
   
-  skip_before_action :authenticate_request!, only: [:index, :show]
+  skip_before_action :authenticate_request!, only: [:index, :show, :categories]
 
   def index
     page = params[:page].to_i
@@ -16,6 +16,8 @@ class ProductController < ApplicationController
     total = filtered.count
     total_pages = (total.to_f / per_page).ceil
     response.headers['X-Total-Pages'] = total_pages.to_s
+    # ensure browsers can read the custom header by exposing it via CORS
+    response.headers['Access-Control-Expose-Headers'] = 'X-Total-Pages'
 
     render json: products
   end
