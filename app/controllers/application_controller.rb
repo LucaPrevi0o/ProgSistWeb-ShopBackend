@@ -23,6 +23,12 @@ class ApplicationController < ActionController::API
     end
   end
 
+  def require_admin!
+    return if @current_user&.admin?
+
+    render json: { error: 'Accesso riservato agli amministratori' }, status: :forbidden
+  end
+
   def render_unauthorized
     response.headers['WWW-Authenticate'] = 'Bearer realm="Application"'
     render json: { error: 'Accesso non autorizzato' }, status: :unauthorized
