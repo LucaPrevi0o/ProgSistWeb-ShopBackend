@@ -15,13 +15,16 @@ class UserController < ApplicationController
         render json: { error: 'Email already taken' }, status: :conflict and return
       end
 
-      user = User.create!(email: email, password: password)
+      user = User.create!(email: email, password: password, role: 'USER')
 
       payload = { user_id: user.id, exp: 24.hours.from_now.to_i, jti: SecureRandom.uuid }
       secret = Rails.application.credentials.secret_key_base || Rails.application.secret_key_base
       token = JWT.encode(payload, secret, 'HS256')
-
-      render json: { token: token, id: user.id }, status: :created
+      render json: {
+        token: token,
+        id: user.id,
+        role: user.role
+      }, status: :created
     rescue ActiveRecord::RecordInvalid => e
       render json: { error: 'Validation failed', details: e.record.errors.full_messages }, status: :unprocessable_entity
     rescue => e
@@ -200,6 +203,7 @@ class UserController < ApplicationController
     {
       id: user.id,
       email: user.email,
+      role: user.role,
       info: info
     }
   end

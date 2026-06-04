@@ -9,10 +9,19 @@ class AuthController < ApplicationController
 
       user = User.find_by(email: email)
       if user&.authenticate(password)
-        payload = { user_id: user.id, exp: 24.hours.from_now.to_i, jti: SecureRandom.uuid }
+        payload = payload = {
+          user_id: user.id,
+          role: user.role,
+          exp: 24.hours.from_now.to_i,
+          jti: SecureRandom.uuid
+        }
         secret = Rails.application.credentials.secret_key_base || Rails.application.secret_key_base
         token = JWT.encode(payload, secret, 'HS256')
-        render json: { token: token, id: user.id }
+        render json: {
+          token: token,
+          id: user.id,
+          role: user.role
+        }
       else
         render json: { error: 'Invalid credentials' }, status: :unauthorized
       end
