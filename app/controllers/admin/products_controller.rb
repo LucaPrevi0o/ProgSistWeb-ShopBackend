@@ -35,7 +35,7 @@ module Admin
 
     def set_product
       @product = Product.find_by(id: params[:id])
-      render json: { error: 'Product not found' }, status: :not_found unless @product
+      return render json: { error: 'Product not found' }, status: :not_found unless @product
     end
 
     def product_params
