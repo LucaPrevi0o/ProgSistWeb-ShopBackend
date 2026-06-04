@@ -8,6 +8,8 @@ Rails.application.routes.draw do
   
   post "login" => "auth#login"
   post "users" => "user#create"
+
+  get "admin/me" => "admin#me"
   
   get "users" => "user#index"
   get "users/:id" => "user#show"
