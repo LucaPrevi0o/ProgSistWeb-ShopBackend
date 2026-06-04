@@ -1,6 +1,6 @@
 class Product < ApplicationRecord
 	# Allowed categories
-	CATEGORIES = %w[ELECTRONICS ACCESSORIES CLOTHES BOOKS TOYS HOME BEAUTY UNCATEGORIZED]
+	CATEGORIES = %w[Elettronica Abbigliamento Libri Casa Giardino Sport]
 
 	# Validations
 	validates :category, presence: true, inclusion: { in: CATEGORIES }
