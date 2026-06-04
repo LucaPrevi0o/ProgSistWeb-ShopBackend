@@ -21,4 +21,5 @@ Rails.application.routes.draw do
   delete "cart/item" => "cart#remove_item"
   delete "cart" => "cart#destroy"
   post "checkout" => "order#create"
+  get "orders" => "order#index"
 end
