@@ -61,6 +61,18 @@ class UserController < ApplicationController
         data_attrs = data_attrs.merge('address' => address_attrs) if address_attrs.present?
         info = @current_user.build_user_info(data: data_attrs)
         info.save!
+        # Accept optional paymentMethods array in info and create payment records
+        if params[:info].present?
+          pm_list = params[:info][:paymentMethods] || params[:info][:payment_methods]
+          if pm_list.present?
+            pm_list.each do |pm|
+              t = pm[:type] || pm['type']
+              details = pm[:details] || pm['details']
+              next if t.blank? || details.blank?
+              info.payment_methods.create!(type: t, details: details)
+            end
+          end
+        end
       end
       render json: build_user_payload(@current_user)
     rescue ActiveRecord::RecordInvalid => e
@@ -84,6 +96,21 @@ class UserController < ApplicationController
         else
           data_attrs = data_attrs.merge('address' => address_attrs) if address_attrs.present?
           info = @current_user.create_user_info!(data: data_attrs)
+        end
+
+        # If paymentMethods are provided in the info payload, replace existing methods
+        if params[:info].present?
+          pm_list = params[:info][:paymentMethods] || params[:info][:payment_methods]
+          if pm_list.present?
+            # simple strategy: remove existing methods and recreate from payload
+            info.payment_methods.destroy_all
+            pm_list.each do |pm|
+              t = pm[:type] || pm['type']
+              details = pm[:details] || pm['details']
+              next if t.blank? || details.blank?
+              info.payment_methods.create!(type: t, details: details)
+            end
+          end
         end
       end
 
@@ -163,6 +190,7 @@ class UserController < ApplicationController
         info[:paymentMethods] = user.user_info.payment_methods.map do |pm|
           {
             id: pm.id,
+            type: pm.type,
             details: pm.details
           }
         end
