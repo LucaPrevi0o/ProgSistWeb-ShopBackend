@@ -30,6 +30,37 @@ class OrderController < ApplicationController
     render json: payload
   end
 
+  def show
+    order = Order.find(params[:id])
+    if order.user_id != @current_user.id
+      render json: { error: 'Unauthorized' }, status: :unauthorized
+      return
+    end
+
+    payload = {
+      id: order.id,
+      userId: order.user_id,
+      personalData: order.personal_data || {},
+      paymentMethod: order.payment_method || {},
+      items: order.order_items.map do |oi|
+        {
+          product: (oi.product&.as_json || { 'id' => oi.product_id }),
+          quantity: oi.quantity,
+          price: oi.price.to_f
+        }
+      end,
+      total: order.total.to_f,
+      status: order.status,
+      createdAt: order.created_at,
+      updatedAt: order.updated_at,
+      address: order.address,
+      city: order.city,
+      postalCode: order.postal_code
+    }
+
+    render json: payload
+  end
+
   def create
     order_hash = params.require(:order).to_unsafe_h.with_indifferent_access
 

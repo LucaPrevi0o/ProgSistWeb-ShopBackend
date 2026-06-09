@@ -24,6 +24,7 @@ Rails.application.routes.draw do
   delete "cart" => "cart#destroy"
   post "checkout" => "order#create"
   get "orders" => "order#index"
+  get "orders/:id" => "order#show"
 
   namespace :admin do
     resources :products, only: [:index, :show, :create, :update, :destroy]
