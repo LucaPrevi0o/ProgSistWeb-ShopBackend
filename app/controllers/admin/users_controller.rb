@@ -35,20 +35,20 @@ module Admin
     end
 
     def serialize_user(user)
+      info_data = user.user_info&.data || {}
 
       {
         id: user.id,
         email: user.email,
-        role: user.role,
-        createdAt: user.created_at,
+        role: user.respond_to?(:role) ? user.role : nil,
+        createdAt: user.respond_to?(:created_at) ? user.created_at : nil,
 
-        info: user.info ? {
-          firstName: user.info.first_name,
-          lastName: user.info.last_name,
-          phone: user.info.phone
+        info: user.user_info ? {
+          firstName: info_data["firstName"] || info_data["first_name"],
+          lastName: info_data["lastName"] || info_data["last_name"],
+          phone: info_data["phone"]
         } : nil
       }
-
     end
 
   end
