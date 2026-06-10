@@ -9,7 +9,3 @@ The rule for the refactoring is:
 - Conversion between the two formats must happen only at the API boundary:
   - request parsing: `camelCase` JSON -> `snake_case` Rails params
   - response serialization: Rails model/data -> `camelCase` JSON
-
----
-
-## 1. Naming
