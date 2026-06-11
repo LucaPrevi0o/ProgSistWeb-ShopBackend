@@ -61,6 +61,16 @@ class Product < ApplicationRecord
 			save!
 		end
 	end
+
+	def increment_stock!(quantity = 1)
+		q = quantity.to_i
+		raise ArgumentError, 'quantity must be positive' if q <= 0
+
+		with_lock do
+			self.stock = stock.to_i + q
+			save!
+		end
+	end
   
 	has_many :cart_items, dependent: :destroy
 end

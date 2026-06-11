@@ -158,6 +158,29 @@ class ApiContractFlowTest < ActionDispatch::IntegrationTest
     assert_equal "completed", order.reload.status
   end
 
+  test "admin cancellation restores ordered product stock once" do
+    admin = users(:admin)
+    token = Auth::Token.issue(admin)
+    product = products(:one)
+    starting_stock = product.stock
+    order = create_order!
+    order.order_items.create!(product: product, quantity: 2, price: product.price)
+
+    patch "/admin/orders/#{order.id}/status",
+          params: { status: "cancelled" },
+          headers: { "Authorization" => "Bearer #{token}" }
+
+    assert_response :success
+    assert_equal starting_stock + 2, product.reload.stock
+
+    patch "/admin/orders/#{order.id}/status",
+          params: { status: "cancelled" },
+          headers: { "Authorization" => "Bearer #{token}" }
+
+    assert_response :success
+    assert_equal starting_stock + 2, product.reload.stock
+  end
+
   test "admin cannot set an invalid order status" do
     admin = users(:admin)
     token = Auth::Token.issue(admin)
