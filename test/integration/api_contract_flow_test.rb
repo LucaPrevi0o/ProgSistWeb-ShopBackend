@@ -66,7 +66,7 @@ class ApiContractFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "checkout derives user and returns orderId" do
-    post "/checkout",
+    post "/orders",
          params: {
            order: {
              userId: 999_999,
@@ -100,6 +100,23 @@ class ApiContractFlowTest < ActionDispatch::IntegrationTest
     assert_equal @user.id, order.user_id
     assert_equal "Mario", order.personal_data["firstName"]
     assert_equal "payPal", order.payment_method["methodType"]
+  end
+
+  test "auth endpoints expose login me and logout" do
+    post "/auth/login", params: { email: @user.email, password: "secret123" }
+
+    assert_response :success
+    token = JSON.parse(response.body)["token"]
+    assert token.present?
+
+    get "/auth/me", headers: { "Authorization" => "Bearer #{token}" }
+
+    assert_response :success
+    assert_equal @user.email, JSON.parse(response.body)["email"]
+
+    post "/auth/logout", headers: { "Authorization" => "Bearer #{token}" }
+
+    assert_response :no_content
   end
 
   private

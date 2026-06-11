@@ -13,4 +13,12 @@ class AuthController < ApplicationController
     Rails.logger.error("AuthController#login error: #{e.class} - #{e.message}\n#{e.backtrace.first(10).join("\n")}")
     render json: { error: 'Internal server error' }, status: :internal_server_error
   end
+
+  def logout
+    head :no_content
+  end
+
+  def me
+    render json: UserSerializer.call(current_user)
+  end
 end

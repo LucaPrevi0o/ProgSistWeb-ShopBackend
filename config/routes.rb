@@ -6,7 +6,10 @@ Rails.application.routes.draw do
   get "products/:id" => "product#show"
   get "categories" => "product#categories"
   
-  post "login" => "auth#login"
+  post "auth/login" => "auth#login"
+  post "auth/logout" => "auth#logout"
+  get "auth/me" => "auth#me"
+
   post "users" => "user#create"
 
   get "admin/me" => "admin#me"
@@ -21,7 +24,7 @@ Rails.application.routes.draw do
   patch "cart/items/:product_id" => "cart#update_item"
   delete "cart/items/:product_id" => "cart#remove_item"
   delete "cart" => "cart#destroy"
-  post "checkout" => "order#create"
+  post "orders" => "order#create"
   get "orders" => "order#index"
   get "orders/:id" => "order#show"
 
