@@ -1,2 +1,0 @@
-class CreditCard < PaymentMethod
-end

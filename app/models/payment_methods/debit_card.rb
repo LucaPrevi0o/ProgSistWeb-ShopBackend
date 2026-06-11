@@ -1,2 +1,0 @@
-class DebitCard < PaymentMethod
-end
