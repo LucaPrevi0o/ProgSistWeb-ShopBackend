@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_04_170000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_120000) do
+  create_table "addresses", force: :cascade do |t|
+    t.string "city"
+    t.string "country"
+    t.datetime "created_at", null: false
+    t.integer "personal_data_id", null: false
+    t.string "postal_code"
+    t.string "street"
+    t.datetime "updated_at", null: false
+    t.index ["personal_data_id"], name: "index_addresses_on_personal_data_id"
+  end
+
   create_table "cart_items", force: :cascade do |t|
     t.integer "cart_id", null: false
     t.datetime "created_at", null: false
@@ -62,10 +73,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_04_170000) do
   create_table "payment_methods", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.json "details", default: {}
-    t.string "type", null: false
+    t.string "method_type", null: false
     t.datetime "updated_at", null: false
     t.integer "user_info_id", null: false
     t.index ["user_info_id"], name: "index_payment_methods_on_user_info_id"
+  end
+
+  create_table "personal_data", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.string "phone"
+    t.datetime "updated_at", null: false
+    t.integer "user_info_id", null: false
+    t.index ["user_info_id"], name: "index_personal_data_on_user_info_id"
   end
 
   create_table "products", force: :cascade do |t|
@@ -93,6 +114,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_04_170000) do
     t.index ["role"], name: "index_users_on_role"
   end
 
+  add_foreign_key "addresses", "personal_data", column: "personal_data_id"
   add_foreign_key "cart_items", "carts"
   add_foreign_key "cart_items", "products"
   add_foreign_key "carts", "users"
@@ -100,5 +122,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_04_170000) do
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "users"
   add_foreign_key "payment_methods", "user_infos"
+  add_foreign_key "personal_data", "user_infos"
   add_foreign_key "user_infos", "users"
 end
