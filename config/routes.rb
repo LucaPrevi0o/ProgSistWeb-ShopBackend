@@ -14,7 +14,6 @@ Rails.application.routes.draw do
 
   get "admin/me" => "admin#me"
   
-  get "users" => "user#index"
   get "users/:id" => "user#show"
   patch "users/:id/user-info" => "user#update_info"
   

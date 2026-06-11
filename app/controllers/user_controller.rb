@@ -19,11 +19,6 @@ class UserController < ApplicationController
     render json: { error: 'Internal server error' }, status: :internal_server_error
   end
 
-  def index
-    users = User.includes(user_info: [:personal_data, :payment_methods]).all
-    render json: users.map { |user| UserSerializer.call(user) }
-  end
-
   def show
     user = User.includes(user_info: [:personal_data, :payment_methods]).find_by(id: params[:id])
     return render json: { error: 'User not found' }, status: :not_found unless user
