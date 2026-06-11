@@ -119,9 +119,59 @@ class ApiContractFlowTest < ActionDispatch::IntegrationTest
     assert_response :no_content
   end
 
+  test "orders can be filtered by status and date range" do
+    old_order = create_order!(
+      status: "pending",
+      created_at: 3.days.ago,
+      updated_at: 3.days.ago
+    )
+    create_order!(
+      status: "cancelled",
+      created_at: 1.day.ago,
+      updated_at: 1.day.ago
+    )
+
+    get "/orders",
+        params: {
+          status: "pending",
+          fromDate: 4.days.ago.to_date.iso8601,
+          toDate: 2.days.ago.to_date.iso8601
+        },
+        headers: auth_headers
+
+    assert_response :success
+    orders = JSON.parse(response.body)
+    assert_equal [old_order.id], orders.map { |order| order["id"] }
+  end
+
   private
 
   def auth_headers
     { "Authorization" => "Bearer #{@token}" }
+  end
+
+  def create_order!(attrs = {})
+    Order.create!(
+      {
+        user: @user,
+        name: "Mario",
+        surname: "Rossi",
+        address: "Via Roma 1",
+        city: "Ferrara",
+        country: "Italy",
+        postal_code: "44121",
+        total: 10,
+        status: "pending",
+        personal_data: {
+          "firstName" => "Mario",
+          "lastName" => "Rossi",
+          "address" => { "street" => "Via Roma 1" }
+        },
+        payment_method: {
+          "methodType" => "payPal",
+          "details" => { "email" => "user@example.com" }
+        }
+      }.merge(attrs)
+    )
   end
 end
