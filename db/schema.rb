@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_11_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_120001) do
   create_table "addresses", force: :cascade do |t|
     t.string "city"
     t.string "country"
@@ -108,9 +108,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_120000) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.datetime "created_at"
     t.string "email"
     t.string "password_digest"
     t.string "role", default: "USER", null: false
+    t.datetime "updated_at"
     t.index ["role"], name: "index_users_on_role"
   end
 
