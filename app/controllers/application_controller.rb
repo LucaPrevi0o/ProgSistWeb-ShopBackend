@@ -10,4 +10,8 @@ class ApplicationController < ActionController::API
     header = request.headers['Authorization'] || request.authorization
     return render_unauthorized unless header.present?
 
-    token = header.to_s.split('
+    token = header.to_s.split(' ').last
+
+    begin
+      secret = Rails.application.credentials.secret_key_base || Rails.application.secret_key_base
+      decoded = JWT.decode(token, secret, true, {
