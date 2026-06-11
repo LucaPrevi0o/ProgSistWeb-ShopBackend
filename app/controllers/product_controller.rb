@@ -1,35 +1,26 @@
 class ProductController < ApplicationController
-  
   skip_before_action :authenticate_request!, only: [:index, :show, :categories]
 
   def index
-    page = params[:page].to_i
+    page = normalized_query_params[:page].to_i
     page = 1 if page < 1
     per_page = 8
 
-    # Build filtered relation and then paginate so filtering applies to full dataset
-    filtered = Product.apply_filters(params)
-
+    filtered = Product.apply_filters(normalized_query_params)
     products = filtered.limit(per_page).offset((page - 1) * per_page)
+    total_pages = (filtered.count.to_f / per_page).ceil
 
-    # expose total pages via response header so frontend can render pagination
-    total = filtered.count
-    total_pages = (total.to_f / per_page).ceil
     response.headers['X-Total-Pages'] = total_pages.to_s
-    # ensure browsers can read the custom header by exposing it via CORS
     response.headers['Access-Control-Expose-Headers'] = 'X-Total-Pages'
 
-    render json: products
+    render json: products.map { |product| ProductSerializer.call(product) }
   end
 
   def show
-    product = Product.find(params[:id])
-    render json: product
+    render json: ProductSerializer.call(Product.find(params[:id]))
   end
 
   def categories
-    # return only categories that have at least one product available (stock > 0)
-    cats = Product.where('stock > 0').distinct.order(:category).pluck(:category)
-    render json: cats
+    render json: Product.where('stock > 0').distinct.order(:category).pluck(:category)
   end
 end

@@ -5,23 +5,23 @@ module Admin
 
     def index
       products = Product.order(:id)
-      render json: products
+      render json: products.map { |product| ProductSerializer.call(product, include_timestamps: true) }
     end
 
     def show
-      render json: @product
+      render json: ProductSerializer.call(@product, include_timestamps: true)
     end
 
     def create
       product = Product.create!(product_params)
-      render json: product, status: :created
+      render json: ProductSerializer.call(product, include_timestamps: true), status: :created
     rescue ActiveRecord::RecordInvalid => e
       render json: { error: 'Validation failed', details: e.record.errors.full_messages }, status: :unprocessable_entity
     end
 
     def update
       @product.update!(product_params)
-      render json: @product
+      render json: ProductSerializer.call(@product, include_timestamps: true)
     rescue ActiveRecord::RecordInvalid => e
       render json: { error: 'Validation failed', details: e.record.errors.full_messages }, status: :unprocessable_entity
     end

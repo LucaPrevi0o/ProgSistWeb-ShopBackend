@@ -13,14 +13,13 @@ Rails.application.routes.draw do
   
   get "users" => "user#index"
   get "users/:id" => "user#show"
-  post "users/:id/info" => "user#create_info"
-  patch "users/:id/info" => "user#update_info"
+  patch "users/:id/user-info" => "user#update_info"
   
   get "cart" => "cart#show"
   post "cart" => "cart#create"
-  post "cart/new" => "cart#add_item"
-  patch "cart/item" => "cart#update_item"
-  delete "cart/item" => "cart#remove_item"
+  post "cart/items" => "cart#add_item"
+  patch "cart/items/:product_id" => "cart#update_item"
+  delete "cart/items/:product_id" => "cart#remove_item"
   delete "cart" => "cart#destroy"
   post "checkout" => "order#create"
   get "orders" => "order#index"

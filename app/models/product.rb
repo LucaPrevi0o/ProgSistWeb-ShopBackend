@@ -31,6 +31,7 @@ class Product < ApplicationRecord
 
 	# Compose filters from a params-like hash
 	def self.apply_filters(params)
+		params = params.with_indifferent_access
 		rel = all
 		rel = rel.by_category(params[:category]) if params[:category].present?
 		rel = rel.name_like(params[:name]) if params[:name].present?
