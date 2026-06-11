@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_11_120001) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_121000) do
   create_table "addresses", force: :cascade do |t|
     t.string "city"
     t.string "country"
@@ -56,7 +56,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_120001) do
     t.string "city"
     t.string "country"
     t.datetime "created_at", null: false
-    t.json "items", default: [], null: false
     t.string "name"
     t.json "payment_method", default: {}, null: false
     t.json "personal_data", default: {}, null: false
@@ -102,7 +101,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_120001) do
   end
 
   create_table "user_infos", force: :cascade do |t|
-    t.json "data"
     t.integer "user_id", null: false
     t.index ["user_id"], name: "index_user_infos_on_user_id"
   end

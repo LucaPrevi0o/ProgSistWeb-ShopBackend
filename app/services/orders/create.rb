@@ -35,8 +35,7 @@ module Orders
         status: 'pending',
         total: 0,
         personal_data: PersonalDataSerializer.snapshot(personal_data),
-        payment_method: PaymentMethodSerializer.snapshot(params[:payment_method] || {}),
-        items: params[:items] || []
+        payment_method: PaymentMethodSerializer.snapshot(params[:payment_method] || {})
       }
     end
 
