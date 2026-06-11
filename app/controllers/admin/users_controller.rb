@@ -4,7 +4,7 @@ module Admin
     before_action :set_user, only: [:show]
 
     def index
-      users = User.includes(user_info: [:personal_data, :payment_methods]).order(:id)
+      users = User.includes(user_info: [:personal_data, :payment_methods]).where(role: 'USER').order(:id)
       render json: users.map { |user| UserSerializer.call(user, include_timestamps: true) }
     end
 
