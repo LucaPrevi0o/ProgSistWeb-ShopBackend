@@ -144,6 +144,33 @@ class ApiContractFlowTest < ActionDispatch::IntegrationTest
     assert_equal [old_order.id], orders.map { |order| order["id"] }
   end
 
+  test "admin can update order status" do
+    admin = users(:admin)
+    token = Auth::Token.issue(admin)
+    order = create_order!
+
+    patch "/admin/orders/#{order.id}/status",
+          params: { status: "completed" },
+          headers: { "Authorization" => "Bearer #{token}" }
+
+    assert_response :success
+    assert_equal "completed", JSON.parse(response.body)["status"]
+    assert_equal "completed", order.reload.status
+  end
+
+  test "admin cannot set an invalid order status" do
+    admin = users(:admin)
+    token = Auth::Token.issue(admin)
+    order = create_order!
+
+    patch "/admin/orders/#{order.id}/status",
+          params: { status: "lost" },
+          headers: { "Authorization" => "Bearer #{token}" }
+
+    assert_response :unprocessable_entity
+    assert_equal "pending", order.reload.status
+  end
+
   private
 
   def auth_headers

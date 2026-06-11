@@ -30,7 +30,9 @@ Rails.application.routes.draw do
 
   namespace :admin do
     resources :products, only: [:index, :show, :create, :update, :destroy]
-    resources :orders, only: [:index, :show]
+    resources :orders, only: [:index, :show] do
+      patch :status, on: :member
+    end
     resources :users, only: [:index, :show]
   end
 end
