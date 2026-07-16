@@ -1,11 +1,10 @@
 Rails.application.routes.draw do
-
   get "up" => "rails/health#show", as: :rails_health_check
 
   get "products" => "product#index"
   get "products/:id" => "product#show"
   get "categories" => "product#categories"
-  
+
   post "auth/login" => "auth#login"
   post "auth/logout" => "auth#logout"
   get "auth/me" => "auth#me"
@@ -13,10 +12,10 @@ Rails.application.routes.draw do
   post "users" => "user#create"
 
   get "admin/me" => "admin#me"
-  
+
   get "users/:id" => "user#show"
   patch "users/:id/user-info" => "user#update_info"
-  
+
   get "cart" => "cart#show"
   post "cart" => "cart#create"
   post "cart/items" => "cart#add_item"
@@ -28,10 +27,10 @@ Rails.application.routes.draw do
   get "orders/:id" => "order#show"
 
   namespace :admin do
-    resources :products, only: [:index, :show, :create, :update, :destroy]
-    resources :orders, only: [:index, :show] do
+    resources :products, only: [ :index, :show, :create, :update, :destroy ]
+    resources :orders, only: [ :index, :show ] do
       patch :status, on: :member
     end
-    resources :users, only: [:index, :show]
+    resources :users, only: [ :index, :show ]
   end
 end

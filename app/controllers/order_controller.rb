@@ -6,7 +6,7 @@ class OrderController < ApplicationController
 
   def show
     order = current_user.orders.includes(order_items: :product).find_by(id: params[:id])
-    return render json: { error: 'Order not found' }, status: :not_found unless order
+    return render json: { error: "Order not found" }, status: :not_found unless order
 
     render json: OrderSerializer.call(order)
   end

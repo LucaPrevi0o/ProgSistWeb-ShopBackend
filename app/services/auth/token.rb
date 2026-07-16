@@ -8,7 +8,7 @@ module Auth
         jti: SecureRandom.uuid
       }
 
-      JWT.encode(payload, secret, 'HS256')
+      JWT.encode(payload, secret, "HS256")
     end
 
     def self.secret

@@ -21,8 +21,8 @@ class Order < ApplicationRecord
   private
 
   def restore_stock_after_cancellation
-    return unless status == 'cancelled'
-    return if status_was == 'cancelled'
+    return unless status == "cancelled"
+    return if status_was == "cancelled"
 
     order_items.includes(:product).find_each do |order_item|
       order_item.product.increment_stock!(order_item.quantity)

@@ -141,7 +141,7 @@ class ApiContractFlowTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     orders = JSON.parse(response.body)
-    assert_equal [old_order.id], orders.map { |order| order["id"] }
+    assert_equal [ old_order.id ], orders.map { |order| order["id"] }
   end
 
   test "admin can update order status" do

@@ -32,7 +32,7 @@ module Orders
         city: address[:city],
         postal_code: address[:postal_code],
         country: address[:country],
-        status: 'pending',
+        status: "pending",
         total: 0,
         personal_data: PersonalDataSerializer.snapshot(personal_data),
         payment_method: PaymentMethodSerializer.snapshot(params[:payment_method] || {})
@@ -44,7 +44,7 @@ module Orders
         item = item.with_indifferent_access
         product_id = item[:product_id] || item.dig(:product, :id)
         quantity = item[:quantity].to_i
-        raise ArgumentError, 'Invalid quantity' if quantity <= 0
+        raise ArgumentError, "Invalid quantity" if quantity <= 0
 
         product = Product.find(product_id)
         product.decrement_stock!(quantity)

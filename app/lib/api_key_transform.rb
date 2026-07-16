@@ -53,13 +53,13 @@ module ApiKeyTransform
 
   def transform_key(key, key_transform)
     transformed = case key_transform
-                  when :underscore
+    when :underscore
                     key.to_s.underscore
-                  when :camelize_lower
+    when :camelize_lower
                     key.to_s.camelize(:lower)
-                  else
+    else
                     raise ArgumentError, "Unknown key transform: #{key_transform.inspect}"
-                  end
+    end
 
     key.is_a?(Symbol) ? transformed.to_sym : transformed
   end

@@ -2,7 +2,7 @@ ENV["RAILS_ENV"] ||= "test"
 if ENV["COVERAGE"] == "true"
   require "simplecov"
   SimpleCov.enable_coverage :branch
-  SimpleCov.formatters = [SimpleCov::Formatter::HTMLFormatter, SimpleCov::Formatter::SimpleFormatter]
+  SimpleCov.formatters = [ SimpleCov::Formatter::HTMLFormatter, SimpleCov::Formatter::SimpleFormatter ]
   # Baseline measured after adding service, authorization, and model tests.
   SimpleCov.minimum_coverage line: 75, branch: 45
   SimpleCov.start "rails" do

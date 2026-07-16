@@ -13,7 +13,7 @@ class CartController < ApplicationController
     cart = Carts::AddItem.call(user: current_user, params: normalized_resource(:cart_item))
     render json: CartSerializer.call(cart)
   rescue ActiveRecord::RecordNotFound
-    render json: { error: 'Product not found' }, status: :not_found
+    render json: { error: "Product not found" }, status: :not_found
   rescue ArgumentError => e
     render json: { error: e.message }, status: :unprocessable_entity
   end

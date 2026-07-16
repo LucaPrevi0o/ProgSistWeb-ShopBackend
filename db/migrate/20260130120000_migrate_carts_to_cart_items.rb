@@ -16,7 +16,7 @@ class MigrateCartsToCartItems < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :cart_items, [:cart_id, :product_id], unique: true unless index_exists?(:cart_items, [:cart_id, :product_id])
+    add_index :cart_items, [ :cart_id, :product_id ], unique: true unless index_exists?(:cart_items, [ :cart_id, :product_id ])
 
     # Migrate existing data from old carts table
     if table_exists?(:carts)
@@ -31,16 +31,16 @@ class MigrateCartsToCartItems < ActiveRecord::Migration[8.1]
           updated_at = row[5] || Time.current
 
           # Find or create cart for user
-          cart = select_all(["SELECT id FROM carts_new WHERE user_id = ? LIMIT 1", user_id]).first
+          cart = select_all([ "SELECT id FROM carts_new WHERE user_id = ? LIMIT 1", user_id ]).first
           unless cart
-            execute(["INSERT INTO carts_new (user_id, created_at, updated_at) VALUES (?, ?, ?)", user_id, created_at, updated_at])
-            cart = select_all(["SELECT id FROM carts_new WHERE user_id = ? LIMIT 1", user_id]).first
+            execute([ "INSERT INTO carts_new (user_id, created_at, updated_at) VALUES (?, ?, ?)", user_id, created_at, updated_at ])
+            cart = select_all([ "SELECT id FROM carts_new WHERE user_id = ? LIMIT 1", user_id ]).first
           end
 
           cart_id = cart['id']
 
           # Insert cart_item
-          execute(["INSERT INTO cart_items (cart_id, product_id, quantity, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", cart_id, product_id, quantity, created_at, updated_at])
+          execute([ "INSERT INTO cart_items (cart_id, product_id, quantity, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", cart_id, product_id, quantity, created_at, updated_at ])
         end
       end
     end
@@ -62,22 +62,22 @@ class MigrateCartsToCartItems < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :old_carts, [:user_id, :product_id], unique: true
+    add_index :old_carts, [ :user_id, :product_id ], unique: true
 
     # Migrate data back: for each cart (one per user), insert back cart rows from cart_items
     if table_exists?(:carts)
       say_with_time "Migrating cart_items back to old carts" do
         execute("SELECT id FROM carts").to_a.each do |crow|
           cart_id = crow[0]
-          execute(["SELECT product_id, quantity, created_at, updated_at FROM cart_items WHERE cart_id = ?", cart_id]).to_a.each do |item|
+          execute([ "SELECT product_id, quantity, created_at, updated_at FROM cart_items WHERE cart_id = ?", cart_id ]).to_a.each do |item|
             product_id = item[0]
             quantity = item[1] || 1
             created_at = item[2] || Time.current
             updated_at = item[3] || Time.current
             # find user_id for cart
-            user = select_all(["SELECT user_id FROM carts WHERE id = ? LIMIT 1", cart_id]).first
+            user = select_all([ "SELECT user_id FROM carts WHERE id = ? LIMIT 1", cart_id ]).first
             user_id = user['user_id']
-            execute(["INSERT INTO old_carts (user_id, product_id, quantity, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", user_id, product_id, quantity, created_at, updated_at])
+            execute([ "INSERT INTO old_carts (user_id, product_id, quantity, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", user_id, product_id, quantity, created_at, updated_at ])
           end
         end
       end

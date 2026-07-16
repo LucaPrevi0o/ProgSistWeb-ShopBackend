@@ -1,7 +1,7 @@
 module Admin
   class ProductsController < ApplicationController
     before_action :require_admin!
-    before_action :set_product, only: [:show, :update, :destroy]
+    before_action :set_product, only: [ :show, :update, :destroy ]
 
     def index
       products = Product.order(:id)
@@ -16,14 +16,14 @@ module Admin
       product = Product.create!(product_params)
       render json: ProductSerializer.call(product, include_timestamps: true), status: :created
     rescue ActiveRecord::RecordInvalid => e
-      render json: { error: 'Validation failed', details: e.record.errors.full_messages }, status: :unprocessable_entity
+      render json: { error: "Validation failed", details: e.record.errors.full_messages }, status: :unprocessable_entity
     end
 
     def update
       @product.update!(product_params)
       render json: ProductSerializer.call(@product, include_timestamps: true)
     rescue ActiveRecord::RecordInvalid => e
-      render json: { error: 'Validation failed', details: e.record.errors.full_messages }, status: :unprocessable_entity
+      render json: { error: "Validation failed", details: e.record.errors.full_messages }, status: :unprocessable_entity
     end
 
     def destroy
@@ -35,7 +35,7 @@ module Admin
 
     def set_product
       @product = Product.find_by(id: params[:id])
-      return render json: { error: 'Product not found' }, status: :not_found unless @product
+      render json: { error: "Product not found" }, status: :not_found unless @product
     end
 
     def product_params

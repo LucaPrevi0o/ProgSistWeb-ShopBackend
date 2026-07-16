@@ -1,5 +1,5 @@
 class ProductController < ApplicationController
-  skip_before_action :authenticate_request!, only: [:index, :show, :categories]
+  skip_before_action :authenticate_request!, only: [ :index, :show, :categories ]
 
   def index
     query_params = normalized_query_params.with_indifferent_access
@@ -11,8 +11,8 @@ class ProductController < ApplicationController
     products = filtered.limit(per_page).offset((page - 1) * per_page)
     total_pages = (filtered.count.to_f / per_page).ceil
 
-    response.headers['X-Total-Pages'] = total_pages.to_s
-    response.headers['Access-Control-Expose-Headers'] = 'X-Total-Pages'
+    response.headers["X-Total-Pages"] = total_pages.to_s
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Pages"
 
     render json: products.map { |product| ProductSerializer.call(product) }
   end
@@ -22,6 +22,6 @@ class ProductController < ApplicationController
   end
 
   def categories
-    render json: Product.where('stock > 0').distinct.order(:category).pluck(:category)
+    render json: Product.where("stock > 0").distinct.order(:category).pluck(:category)
   end
 end

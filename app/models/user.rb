@@ -12,16 +12,16 @@ class User < ApplicationRecord
   after_initialize :set_default_role, if: :new_record?
 
   def admin?
-    role == 'ADMIN'
+    role == "ADMIN"
   end
 
   def user?
-    role == 'USER'
+    role == "USER"
   end
 
   private
 
   def set_default_role
-    self.role ||= 'USER'
+    self.role ||= "USER"
   end
 end

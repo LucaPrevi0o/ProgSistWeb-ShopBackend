@@ -29,7 +29,7 @@ class Orders::CreateTest < ActiveSupport::TestCase
 
   def checkout_params(product, quantity)
     {
-      items: [{ product_id: product.id, quantity: quantity }],
+      items: [ { product_id: product.id, quantity: quantity } ],
       personal_data: {
         first_name: "Mario", last_name: "Rossi",
         address: { street: "Via Roma 1", city: "Ferrara", postal_code: "44121", country: "Italy" }

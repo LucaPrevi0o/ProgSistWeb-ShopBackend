@@ -6,7 +6,7 @@ module Carts
     end
 
     def call
-      cart = user.cart || raise(ActiveRecord::RecordNotFound, 'Cart not found')
+      cart = user.cart || raise(ActiveRecord::RecordNotFound, "Cart not found")
       cart.cart_items.find_by!(product_id: product_id).destroy!
       cart.reload
     end

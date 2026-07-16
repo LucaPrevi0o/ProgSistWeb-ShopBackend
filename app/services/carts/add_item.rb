@@ -8,12 +8,12 @@ module Carts
     def call
       product = Product.find(params[:product_id])
       quantity = (params[:quantity] || 1).to_i
-      raise ArgumentError, 'Invalid quantity' if quantity <= 0
+      raise ArgumentError, "Invalid quantity" if quantity <= 0
 
       cart = Carts::FindOrCreate.call(user: user)
       cart_item = cart.cart_items.find_by(product_id: product.id)
       new_quantity = cart_item ? cart_item.quantity + quantity : quantity
-      raise ArgumentError, 'Insufficient stock' unless product.available?(new_quantity)
+      raise ArgumentError, "Insufficient stock" unless product.available?(new_quantity)
 
       CartItem.transaction do
         cart_item ||= cart.cart_items.build(product: product)
