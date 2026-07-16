@@ -30,6 +30,8 @@
 
 /public/assets
 
+# Generated SimpleCov reports are retained as local/CI artifacts, not source.
+/coverage/
+
 # Ignore key files for decrypting credentials and more.
 /config/*.key
-

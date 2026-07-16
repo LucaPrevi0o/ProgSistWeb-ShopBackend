@@ -48,6 +48,11 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 end
 
+group :test do
+  # Generates HTML and JSON coverage evidence for the local and CI test runs.
+  gem "simplecov", require: false
+end
+
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
