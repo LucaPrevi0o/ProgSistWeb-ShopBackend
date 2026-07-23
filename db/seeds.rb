@@ -2,6 +2,18 @@
 # development, test). The code here is idempotent so it can be executed at any time.
 # Load with `bin/rails db:seed` or during `db:setup`.
 
+# Account amministratore per sviluppo e dimostrazione locale. Le credenziali
+# possono essere sostituite tramite le variabili SEED_ADMIN_EMAIL e
+# SEED_ADMIN_PASSWORD; il seed non sovrascrive mai una password già esistente.
+admin_email = ENV.fetch("SEED_ADMIN_EMAIL", "admin@example.com")
+admin_password = ENV.fetch("SEED_ADMIN_PASSWORD", "secret123")
+admin = User.find_or_initialize_by(email: admin_email)
+admin.role = "ADMIN"
+admin.password = admin_password if admin.new_record?
+admin.save!
+
+puts "Seeded admin #{admin.email} (created or updated)."
+
 # Lista prodotti (idempotente: usa `find_or_initialize_by(name:)`)
 products = [
 
